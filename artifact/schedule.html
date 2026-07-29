@@ -7,6 +7,7 @@
   --tint:12%; --tint-2:26%;
   --shadow:0 1px 2px rgba(23,33,30,.05), 0 10px 26px -14px rgba(23,33,30,.22);
   --c-idt4:#2E7D5B;
+  --c-idt3:#2C5F8A;
   --c-idg3:#8A5E00;
   --c-idq4:#C41B76;
   --c-idq4lab:#7A6027;
@@ -31,6 +32,7 @@
     --tint:20%; --tint-2:38%;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -16px rgba(0,0,0,.75);
     --c-idt4:#5FC194;
+    --c-idt3:#7FB3E0;
     --c-idg3:#D9A441;
     --c-idq4:#F274B0;
     --c-idq4lab:#C7AC6A;
@@ -52,6 +54,7 @@
   --tint:20%; --tint-2:38%;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -16px rgba(0,0,0,.75);
   --c-idt4:#5FC194;
+  --c-idt3:#7FB3E0;
   --c-idg3:#D9A441;
   --c-idq4:#F274B0;
   --c-idq4lab:#C7AC6A;
@@ -72,6 +75,7 @@
   --tint:12%; --tint-2:26%;
   --shadow:0 1px 2px rgba(23,33,30,.05), 0 10px 26px -14px rgba(23,33,30,.22);
   --c-idt4:#2E7D5B;
+  --c-idt3:#2C5F8A;
   --c-idg3:#8A5E00;
   --c-idq4:#C41B76;
   --c-idq4lab:#7A6027;
@@ -303,6 +307,12 @@ details.panel[open]>summary{border-bottom:1px solid var(--rule);}
   color:var(--ink-2);margin-bottom:12px;}
 .note b{color:var(--c-exam);font-family:var(--font-mono);font-size:10px;
   letter-spacing:.1em;text-transform:uppercase;flex:0 0 auto;padding-top:2px;}
+.advisory{display:flex;gap:9px;padding:10px 13px;border-radius:5px;font-size:12.5px;
+  background:color-mix(in srgb,var(--accent) 8%,var(--surface));
+  border:1px solid color-mix(in srgb,var(--accent) 25%,var(--rule));
+  color:var(--ink-2);margin-bottom:14px;line-height:1.55;}
+.advisory b{color:var(--accent);font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;flex:0 0 auto;padding-top:2px;white-space:nowrap;}
 .foot{margin-top:26px;padding-top:15px;border-top:1px solid var(--rule);
   color:var(--ink-3);font-size:12px;display:flex;flex-wrap:wrap;gap:6px 14px;}
 </style>
@@ -314,7 +324,7 @@ details.panel[open]>summary{border-bottom:1px solid var(--rule);}
 
 var T = {
   th:{
-    eyebrow:"คณะเภสัชศาสตร์ · ภาคการศึกษาต้น 2569",
+    eyebrow:"คณะเภสัชศาสตร์",
     title:"ตารางเรียน ปี 3 รหัส 67",
     lede:"เลือกสายของคุณหนึ่งครั้ง แล้วดูตารางทีละสัปดาห์ — 19 สัปดาห์ ตั้งแต่ 3 ส.ค. ถึง 11 ธ.ค. 2569",
     pick:"เลือกสายที่เรียน",
@@ -332,10 +342,11 @@ var T = {
     days:["จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์"],
     mons:["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."],
     footNote:"ยึดตามประกาศของคณะเป็นหลักเสมอ",
-    theme:"ธีม", themeAuto:"อัตโนมัติ", themeLight:"สว่าง", themeDark:"มืด"
+    theme:"ธีม", themeAuto:"อัตโนมัติ", themeLight:"สว่าง", themeDark:"มืด",
+    semester:"ภาคการศึกษา", changeSem:"เปลี่ยนภาคการศึกษา"
   },
   en:{
-    eyebrow:"Faculty of Pharmacy · Semester 1, 2026",
+    eyebrow:"Faculty of Pharmacy",
     title:"Year 3 Class Schedule",
     lede:"Pick your track once, then read the term one week at a time — 19 weeks, 3 Aug to 11 Dec 2026.",
     pick:"Choose your track",
@@ -353,7 +364,8 @@ var T = {
     days:["Monday","Tuesday","Wednesday","Thursday","Friday"],
     mons:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     footNote:"Always defer to official faculty announcements.",
-    theme:"Theme", themeAuto:"Auto", themeLight:"Light", themeDark:"Dark"
+    theme:"Theme", themeAuto:"Auto", themeLight:"Light", themeDark:"Dark",
+    semester:"Semester", changeSem:"Change semester"
   }
 };
 /* colour var + display names. `cr` = credit string from the source legend. */
@@ -370,11 +382,20 @@ var COURSES = {
   PIL3:      {v:"--c-pil3",    code:"PIL 3",                    th:"PIL 3",             en:"PIL 3",              cr:""},
   EXAM:      {v:"--c-exam",    code:"สอบ",       isExam:true,   th:"สอบ",               en:"Exam",               cr:""},
   EVENT:     {v:"--c-event",   code:"กิจกรรม",                   th:"กิจกรรม",            en:"Event",              cr:""},
-  OFF:       {v:"--c-off",     code:"หยุด",                      th:"วันหยุด",            en:"Holiday",            cr:""}
+  OFF:       {v:"--c-off",     code:"หยุด",                      th:"วันหยุด",            en:"Holiday",            cr:""},
+
+  /* semester 2 */
+  IDQ2_LEC:  {v:"--c-idq1lec", code:"IDQ 2",     useSess:true,  th:"บรรยาย",            en:"Lecture",            cr:"2.5(2-1.5-4)"},
+  IDQLAB2:   {v:"--c-idqlab1", code:"IDQ LAB 2", useLabel:true, th:"ปฏิบัติการ",         en:"Lab",                cr:"1(0-3-0)"},
+  IDG4:      {v:"--c-idg3",    code:"IDG 4",     useLabel:true, th:"IDG 4",             en:"IDG 4",              cr:"2(2-0-4)"},
+  IDT5:      {v:"--c-idt4",    code:"IDT 5",     useSess:true,  th:"IDT 5",             en:"IDT 5",              cr:"4(3-2-7)"},
+  IDT3:      {v:"--c-idt3",    code:"IDT 3",     useSess:true,  th:"IDT 3",             en:"IDT 3",              cr:"5(4-2-9)"},
+  IDQ5:      {v:"--c-idq4",    code:"IDQ 5",                    th:"บรรยาย",            en:"Lecture",            cr:"4(3-3-6)"},
+  IDQ5_LAB:  {v:"--c-idq4lab", code:"IDQ 5",                    th:"ปฏิบัติการ",         en:"Lab",                cr:"4(3-3-6)"}
 };
 
-/* legend order + the extra gloss shown in the colour key */
-var LEGEND = [
+/* legend order + the extra gloss shown in the colour key — semester 1 */
+var S1_LEGEND = [
   ["IDT4",     "รายวิชา IDT 4 · จ.เช้า พฤ.เช้า-บ่าย",            "Mon AM, Thu AM+PM · sessions 1-75"],
   ["IDG3",     "รายวิชา IDG 3 · จ.บ่าย",                          "Mon PM · IDG3-1 to IDG3-10"],
   ["IDQ4",     "บรรยาย · พ.เช้า",                                 "Lecture · Wed AM"],
@@ -388,12 +409,27 @@ var LEGEND = [
   ["EXAM",     "วันสอบ",                                          "Examination"]
 ];
 
+/* legend order + gloss — semester 2 */
+var S2_LEGEND = [
+  ["IDQ2_LEC", "บรรยาย · ห้อง 1002 · 30 ชม.",                    "Lecture · room 1002 · 30 hrs"],
+  ["IDQLAB2",  "ปฏิบัติการ/โรเทชัน หมุนเวียน",                     "Rotating lab / practical modules"],
+  ["IDG4",     "รายวิชา IDG 4 · IDG4-1 ถึง IDG4-10",              "IDG4-1 to IDG4-10"],
+  ["IDT5",     "รายวิชา IDT 5 · สัปดาห์ 8-12 · ครั้งที่ 1-75",     "Weeks 8-12 · sessions 1-75"],
+  ["IDT3",     "รายวิชา IDT 3 · สัปดาห์ 13-18 · ครั้งที่ 1-90",    "Weeks 13-18 · sessions 1-90"],
+  ["IDQ5",     "บรรยาย · พ.เช้า",                                 "Lecture · Wed AM"],
+  ["IDQ5_LAB", "ปฏิบัติการ · พฤ.บ่าย",                            "Lab · Thu PM"],
+  ["PIL3",     "ศ.เช้า ตามประกาศ",                                "Fri AM"],
+  ["EXAM",     "วันสอบ",                                          "Examination"]
+];
+
 var ROOMS = { th:{"201":"ตึก 80 ปี","202":"ตึกนวัตกรรม"}, en:{"201":"80th Anniv. Bldg","202":"Innovation Bldg"} };
-var TERM_START = "2026-08-03";   /* Monday of week 1 */
-var WEEKS = 19;
+
+/* ── semester 1 ───────────────────────────────────────────────────── */
+var S1_TERM_START = "2026-08-03";   /* Monday of week 1 */
+var S1_WEEKS = 19;
 
 /* Full-day closures — greyed rows in the source sheet. */
-var HOLIDAYS = {
+var S1_HOLIDAYS = {
   "2026-08-12":{th:"วันเฉลิมพระชนมพรรษาสมเด็จพระบรมราชชนนีพันปีหลวง / วันแม่แห่งชาติ", en:"H.M. the Queen Mother's Birthday / Mother's Day"},
   "2026-10-13":{th:"วันนวมินทรมหาราช", en:"King Bhumibol Memorial Day"},
   "2026-10-23":{th:"วันปิยมหาราช", en:"Chulalongkorn Day"},
@@ -401,7 +437,7 @@ var HOLIDAYS = {
 };
 
 /* Day-level warnings for cells I could not read with confidence. */
-var NOTES = {
+var S1_NOTES = {
   "2026-10-16":{th:"แถวนี้เป็นสีเทาในตารางต้นฉบับ แต่ยังมี PIL 3 อยู่ — ตรวจสอบว่าหยุดหรือไม่",
                 en:"This row is greyed in the source sheet but still shows PIL 3 — verify whether it is a holiday."},
   "2026-10-12":{th:"IDQ 4 LAB SCI ดูเหมือนถูกเลื่อนมาวันจันทร์ เพราะอังคาร 13 ต.ค. เป็นวันหยุด — ตรวจสอบ",
@@ -411,14 +447,18 @@ var NOTES = {
   "2026-11-23":{th:"IDQ LAB 1 (31-34) ใช้สีฟ้าในต้นฉบับ ต่างจากครั้งอื่น — ตรวจสอบ",
                 en:"IDQ LAB 1 (31-34) is cyan in the source, unlike the others — verify."}
 };
+
 /* ── the timetable ───────────────────────────────────────────────────
    S(date, startHour, endHour, courseKey, sessionRange, room, track, nameOverride)
    track: "all" | "sci" (Pharm Sci only) | "care" (Pharm Care only)
    Edit this block to correct the schedule; nothing else needs to change.       */
-var SESSIONS = [];
-function S(d,s,e,c,q,r,t,n){
-  SESSIONS.push({d:d,s:s,e:e,c:c,q:q||"",r:r||"",t:t||"all",n:n||""});
+function makeSessionBuilder(arr){
+  return function(d,s,e,c,q,r,t,n){
+    arr.push({d:d,s:s,e:e,c:c,q:q||"",r:r||"",t:t||"all",n:n||""});
+  };
 }
+var S1_SESSIONS = [];
+var S = makeSessionBuilder(S1_SESSIONS);
 
 /* week 1 — 3-7 Aug */
 S("2026-08-03", 8,12,"IDT4","1-4");
@@ -608,12 +648,237 @@ S("2026-12-02", 9,12,"EXAM","","","all","IDQ 1 EXAM 2 (บรรยาย + ป�
 S("2026-12-03",13,16,"EXAM","","","sci","IDQ LAB 1 EXAM");
 
 /* week 19 — 7-11 Dec  — no scheduled classes */
+
+/* ── semester 2 ───────────────────────────────────────────────────────
+   Transcribed from a lower-resolution source image than semester 1 —
+   see S2_ADVISORY below and S2_NOTES for the specific spots to verify
+   against the official notice before relying on them.                  */
+var S2_TERM_START = "2027-01-04";   /* Monday of week 1 */
+var S2_WEEKS = 20;                  /* week 20 has no printed classes */
+
+var S2_HOLIDAYS = {
+  "2027-02-22":{th:"วันหยุดเต็มวัน (ไม่ระบุชื่อในต้นฉบับ — คาดว่าเป็นวันมาฆบูชา)",
+                en:"Full-day closure (unnamed in the source — likely Makha Bucha Day)"},
+  "2027-04-06":{th:"วันจักรี", en:"Chakri Memorial Day"},
+  "2027-04-13":{th:"วันสงกรานต์", en:"Songkran (Thai New Year)"},
+  "2027-04-14":{th:"วันสงกรานต์", en:"Songkran (Thai New Year)"},
+  "2027-04-15":{th:"วันสงกรานต์", en:"Songkran (Thai New Year)"},
+  "2027-05-04":{th:"วันฉัตรมงคล", en:"Coronation Day"}
+};
+
+var S2_NOTES = {
+  "2027-02-16":{th:"กลุ่ม Gr1/Gr2 ของ Case Study อ่านจากภาพไม่ชัดว่าตรงกับสาย Pharm Sci/Care หรือเป็นเพียงกลุ่มย่อย — แสดงให้ทุกสายเห็นไว้ก่อน",
+                en:"Unclear whether Gr1/Gr2 for the case-study lab map to Pharm Sci/Care or are just rotation groups — shown to both tracks pending confirmation."},
+  "2027-02-22":{th:"แถวนี้ปิดเต็มวันในต้นฉบับแต่ไม่มีชื่อวันหยุดกำกับ — ตรวจสอบชื่อวันหยุดที่แท้จริง",
+                en:"This row is closed all day in the source but has no holiday name printed — verify the actual holiday name."}
+};
+
+/* Shown as a standing banner whenever semester 2 is selected. */
+var S2_ADVISORY = {
+  th:"ข้อมูลภาคปลายถอดจากภาพต้นฉบับที่ความคมชัดต่ำกว่าภาคต้น จุดที่ควรตรวจสอบเพิ่มเติม: บล็อกบ่ายของ IDQ LAB 2 บางสัปดาห์อาจยาวถึง 17:00 ไม่ใช่ 16:00 ตามที่แสดง; ช่วงเวลาสอบ (IDG 4, IDQ 5, IDT 5, IDT 3) อ่านได้ชัดแค่เวลาเริ่ม จึงแสดงเป็นสิ้นสุด 12:00 ไว้ก่อน; และจำนวนครั้งสูงสุดของ IDT 3 (90) ยังไม่ได้ตรวจกับหน่วยกิตที่พิมพ์ไว้",
+  en:"Semester 2 was transcribed from a lower-resolution image than semester 1. Worth double-checking: several IDQ LAB 2 afternoon blocks may run to 17:00 rather than the 16:00 shown here; exam blocks (IDG 4, IDQ 5, IDT 5, IDT 3) only had a legible start time, so they're shown ending at 12:00 by default; and IDT 3's session count (90) wasn't independently confirmed against a printed hour total."
+};
+
+var S2_SESSIONS = [];
+S = makeSessionBuilder(S2_SESSIONS);
+
+/* week 1 — 4-8 Jan 2027 */
+S("2027-01-04", 8, 9, "IDQ2_LEC", "0", "", "all");
+S("2027-01-04", 9, 12, "IDQ2_LEC", "1-3", "", "all");
+S("2027-01-04", 13, 16, "IDG4", "IDG4-1", "", "all");
+S("2027-01-05", 8, 12, "IDQ2_LEC", "4-7", "", "all");
+S("2027-01-05", 13, 16, "IDQLAB2", "Lab rotation 1", "201", "all");
+S("2027-01-06", 9, 12, "IDQ5", "", "", "all");
+S("2027-01-06", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-01-07", 9, 12, "IDQLAB2", "Lab rotation 1", "201", "all");
+S("2027-01-07", 13, 16, "IDG4", "IDG4-2", "", "all");
+S("2027-01-08", 8, 12, "PIL3", "", "", "all");
+
+/* week 2 — 11-15 Jan 2027 */
+S("2027-01-11", 9, 12, "IDQLAB2", "Lab rotation 1", "201", "all");
+S("2027-01-11", 13, 16, "IDG4", "IDG4-3", "", "all");
+S("2027-01-12", 8, 12, "IDQLAB2", "Dissolution Lab", "201", "care");
+S("2027-01-12", 13, 16, "IDQLAB2", "Dissolution Lab", "201", "sci");
+S("2027-01-13", 8, 9, "IDQ2_LEC", "8", "", "all");
+S("2027-01-13", 9, 12, "IDQ5", "", "", "all");
+S("2027-01-13", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-01-14", 9, 12, "IDQ2_LEC", "9-11", "", "all");
+S("2027-01-14", 13, 16, "IDG4", "IDG4-4", "", "all");
+S("2027-01-15", 8, 12, "PIL3", "", "", "all");
+
+/* week 3 — 18-22 Jan 2027 */
+S("2027-01-18", 8, 12, "IDQ2_LEC", "12-15", "", "all");
+S("2027-01-18", 13, 16, "IDG4", "IDG4-5", "", "all");
+S("2027-01-19", 8, 12, "IDQLAB2", "UV 2", "201", "all");
+S("2027-01-19", 13, 16, "IDQLAB2", "Lab rotation 2", "201", "all");
+S("2027-01-20", 9, 12, "IDQ5", "", "", "all");
+S("2027-01-20", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-01-21", 9, 12, "IDQLAB2", "Lab rotation 2", "201", "all");
+S("2027-01-21", 13, 16, "IDG4", "IDG4-6", "", "all");
+S("2027-01-22", 8, 12, "PIL3", "", "", "all");
+
+/* week 4 — 25-29 Jan 2027 */
+S("2027-01-25", 8, 12, "EXAM", "", "1002", "all", "IDQ 2 EXAM: สอบครั้งที่ 1");
+S("2027-01-25", 13, 16, "IDG4", "IDG4-7", "", "all");
+S("2027-01-26", 8, 12, "IDQ2_LEC", "16-19", "", "all");
+S("2027-01-26", 13, 16, "IDQLAB2", "EXT/HPLC1 Lab (1)", "201", "all");
+S("2027-01-27", 9, 12, "IDQ5", "", "", "all");
+S("2027-01-27", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-01-28", 8, 12, "IDQ2_LEC", "20-23", "", "all");
+S("2027-01-28", 13, 16, "IDG4", "IDG4-8", "", "all");
+S("2027-01-29", 8, 12, "PIL3", "", "", "all");
+
+/* week 5 — 1-5 Feb 2027 */
+S("2027-02-01", 8, 12, "IDQ2_LEC", "24-27", "", "all");
+S("2027-02-01", 13, 16, "IDG4", "IDG4-9", "", "all");
+S("2027-02-02", 8, 12, "IDQLAB2", "EXT/HPLC1 Lab (2)", "201", "all");
+S("2027-02-02", 13, 16, "IDQLAB2", "EXT/HPLC1 Lab (3)", "201", "all");
+S("2027-02-03", 9, 12, "IDQ5", "", "", "all");
+S("2027-02-03", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-02-04", 9, 12, "IDQ2_LEC", "28-30", "", "all");
+S("2027-02-04", 13, 16, "IDG4", "IDG4-10", "", "all");
+S("2027-02-05", 8, 12, "PIL3", "", "", "all");
+
+/* week 6 — 8-12 Feb 2027 */
+S("2027-02-08", 9, 12, "IDQLAB2", "Lab rotation 3", "201, 301, 810", "all");
+S("2027-02-08", 13, 16, "IDQLAB2", "Lab rotation 3; SDL: case preparation", "201, 301, 810", "all");
+S("2027-02-09", 9, 12, "IDQLAB2", "Lab rotation 3", "201, 301, 810", "all");
+S("2027-02-10", 9, 12, "IDQ5", "", "", "all");
+S("2027-02-10", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-02-11", 8, 12, "IDQLAB2", "CBL: Identification", "1002", "all");
+S("2027-02-11", 13, 16, "IDQLAB2", "CBL: Identification", "1002", "all");
+S("2027-02-12", 8, 12, "PIL3", "", "", "all");
+
+/* week 7 — 15-19 Feb 2027 */
+S("2027-02-15", 8, 12, "EXAM", "", "1002", "all", "IDQ 2 EXAM: สอบครั้งที่ 2");
+S("2027-02-15", 13, 16, "IDQLAB2", "SDL - Instruments", "201, 810", "all");
+S("2027-02-16", 9, 12, "IDQLAB2", "Lab: Case Study in Pharm Anal (Gr1)", "", "all");
+S("2027-02-16", 13, 16, "IDQLAB2", "Lab: Case Study in Pharm Anal (Gr2)", "", "all");
+S("2027-02-17", 9, 12, "IDQ5", "", "", "all");
+S("2027-02-17", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-02-18", 8, 12, "EXAM", "", "201, 810", "all", "IDQ LAB 2 EXAM: Instrument Practice Exam");
+S("2027-02-18", 13, 16, "IDQLAB2", "SDL - OSPE", "", "all");
+S("2027-02-19", 8, 12, "PIL3", "", "", "all");
+
+/* week 8 — 22-26 Feb 2027  (Mon 22 Feb closed — see S2_HOLIDAYS) */
+S("2027-02-23", 8, 12, "IDT5", "1-4", "", "all");
+S("2027-02-23", 13, 16, "IDT5", "5-7", "", "all");
+S("2027-02-24", 9, 12, "IDQ5", "", "", "all");
+S("2027-02-24", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-02-25", 8, 12, "IDT5", "8-11", "", "all");
+S("2027-02-25", 13, 16, "IDT5", "12-14", "", "all");
+S("2027-02-26", 8, 12, "PIL3", "", "", "all");
+
+/* week 9 — 1-5 Mar 2027 */
+S("2027-03-01", 8, 12, "EXAM", "", "", "all", "IDG 4 EXAM");
+S("2027-03-02", 8, 12, "IDT5", "15-18", "", "all");
+S("2027-03-02", 13, 16, "IDT5", "19-21", "", "all");
+S("2027-03-03", 8, 11, "EXAM", "", "", "all", "IDQ 5 EXAM");
+S("2027-03-03", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-03-04", 8, 12, "EXAM", "", "", "all", "IDQ LAB EXAM: short case OSPE");
+S("2027-03-05", 8, 12, "PIL3", "", "", "all");
+
+/* week 10 — 8-12 Mar 2027 */
+S("2027-03-08", 8, 12, "IDT5", "22-25", "", "all");
+S("2027-03-08", 13, 16, "IDT5", "26-28", "", "all");
+S("2027-03-09", 8, 12, "IDT5", "29-32", "", "all");
+S("2027-03-09", 13, 16, "IDT5", "33-35", "", "all");
+S("2027-03-10", 9, 12, "IDQ5", "", "", "all");
+S("2027-03-10", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-03-11", 8, 12, "IDT5", "36-39", "", "all");
+S("2027-03-11", 13, 16, "IDT5", "40-42", "", "all");
+S("2027-03-12", 8, 12, "PIL3", "", "", "all");
+
+/* week 11 — 15-19 Mar 2027 */
+S("2027-03-15", 8, 12, "EXAM", "", "", "all", "IDT 5 EXAM 1");
+S("2027-03-16", 8, 12, "IDT5", "43-46", "", "all");
+S("2027-03-16", 13, 16, "IDT5", "47-49", "", "all");
+S("2027-03-17", 9, 12, "IDQ5", "", "", "all");
+S("2027-03-17", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-03-18", 8, 12, "IDT5", "50-53", "", "all");
+S("2027-03-18", 13, 16, "IDT5", "54-56", "", "all");
+S("2027-03-19", 8, 12, "PIL3", "", "", "all");
+
+/* week 12 — 22-26 Mar 2027 */
+S("2027-03-22", 8, 12, "IDT5", "57-60", "", "all");
+S("2027-03-22", 13, 16, "IDT5", "61-63", "", "all");
+S("2027-03-23", 8, 12, "IDT5", "64-67", "", "all");
+S("2027-03-23", 13, 16, "IDT5", "68-70", "", "all");
+S("2027-03-24", 9, 12, "IDQ5", "", "", "all");
+S("2027-03-24", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-03-25", 8, 12, "IDT5", "71-74", "", "all");
+S("2027-03-25", 13, 14, "IDT5", "75", "", "all");
+S("2027-03-26", 8, 12, "PIL3", "", "", "all");
+
+/* week 13 — 29 Mar-2 Apr 2027 */
+S("2027-03-29", 8, 12, "EXAM", "", "", "all", "IDT 5 EXAM 2");
+S("2027-03-30", 8, 12, "IDT3", "1-4", "", "all");
+S("2027-03-30", 13, 16, "IDT3", "5-7", "", "all");
+S("2027-03-31", 9, 12, "IDQ5", "", "", "all");
+S("2027-03-31", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-04-01", 8, 12, "IDT3", "8-11", "", "all");
+S("2027-04-01", 13, 16, "IDT3", "12-14", "", "all");
+S("2027-04-02", 8, 12, "EVENT", "", "", "all", "PHARM CU RESEARCH DAY");
+
+/* week 14 — 5-9 Apr 2027  (Tue 6 Apr closed — Chakri Day) */
+S("2027-04-05", 8, 12, "IDT3", "15-18", "", "all");
+S("2027-04-05", 13, 16, "IDT3", "19-21", "", "all");
+S("2027-04-07", 9, 12, "IDQ5", "", "", "all");
+S("2027-04-07", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-04-08", 8, 12, "IDT3", "22-25", "", "all");
+S("2027-04-08", 13, 16, "IDT3", "26-28", "", "all");
+S("2027-04-09", 8, 12, "PIL3", "", "", "all");
+
+/* week 15 — 12-16 Apr 2027  (Tue-Thu closed — Songkran) */
+S("2027-04-12", 8, 12, "EXAM", "", "", "all", "IDT 3 EXAM 1");
+S("2027-04-12", 13, 16, "IDT3", "29-31", "", "all");
+S("2027-04-16", 8, 12, "PIL3", "", "", "all");
+
+/* week 16 — 19-23 Apr 2027 */
+S("2027-04-19", 8, 12, "IDT3", "32-35", "", "all");
+S("2027-04-19", 13, 16, "IDT3", "36-38", "", "all");
+S("2027-04-20", 8, 12, "IDT3", "39-42", "", "all");
+S("2027-04-20", 13, 16, "IDT3", "43-45", "", "all");
+S("2027-04-21", 9, 12, "IDQ5", "", "", "all");
+S("2027-04-21", 13, 16, "IDQ5_LAB", "", "", "all");
+S("2027-04-22", 8, 12, "IDT3", "46-49", "", "all");
+S("2027-04-22", 13, 16, "IDT3", "50-52", "", "all");
+S("2027-04-23", 8, 12, "PIL3", "", "", "all");
+
+/* week 17 — 26-30 Apr 2027 */
+S("2027-04-26", 8, 12, "EXAM", "", "", "all", "IDT 3 EXAM 2");
+S("2027-04-26", 13, 16, "IDT3", "53-55", "", "all");
+S("2027-04-27", 8, 12, "IDT3", "56-59", "", "all");
+S("2027-04-27", 13, 16, "IDT3", "60-62", "", "all");
+S("2027-04-28", 8, 12, "IDT3", "63-66", "", "all");
+S("2027-04-28", 13, 16, "IDT3", "67-69", "", "all");
+S("2027-04-29", 8, 12, "IDT3", "70-73", "", "all");
+S("2027-04-29", 13, 16, "IDT3", "74-76", "", "all");
+S("2027-04-30", 8, 12, "IDT3", "77-80", "", "all");
+S("2027-04-30", 13, 16, "IDT3", "81-83", "", "all");
+
+/* week 18 — 3-7 May 2027  (Tue 4 May closed — Coronation Day) */
+S("2027-05-03", 8, 12, "IDT3", "84-87", "", "all");
+S("2027-05-03", 13, 16, "IDT3", "88-90", "", "all");
+S("2027-05-06", 8, 11, "EXAM", "", "", "all", "IDQ 5 EXAM");
+S("2027-05-07", 13, 16, "EVENT", "", "", "all", "ปฐมนิเทศก่อนฝึกปฏิบัติงาน ปี 3");
+
+/* week 19 — 10-14 May 2027 */
+S("2027-05-11", 8, 12, "EXAM", "", "", "all", "IDT 3 EXAM 3");
+S("2027-05-12", 13, 16, "EVENT", "", "", "all", "พิธีสวมเสื้อกาวน์วิชาชีพ");
+
+/* week 20 — 17-21 May 2027 — no scheduled classes */
+
 /* English wordings for the few labels written in Thai in the data. */
 var EN_LABEL = {
   "IDQ 1 EXAM 1 (บรรยาย)":"IDQ 1 EXAM 1 (lecture)",
   "IDQ 1 EXAM 2 (บรรยาย + ปฏิบัติการ)":"IDQ 1 EXAM 2 (lecture + lab)",
   "ปฐมนิเทศ":"Orientation",
-  "ไหว้ครู":"Wai Khru ceremony"
+  "ไหว้ครู":"Wai Khru ceremony",
+  "IDQ 2 EXAM: สอบครั้งที่ 1":"IDQ 2 EXAM 1",
+  "IDQ 2 EXAM: สอบครั้งที่ 2":"IDQ 2 EXAM 2",
+  "ปฐมนิเทศก่อนฝึกปฏิบัติงาน ปี 3":"Pre-practicum Orientation (Year 3)",
+  "พิธีสวมเสื้อกาวน์วิชาชีพ":"White Coat / Gown Ceremony"
 };
 
 /* Some browsers deny localStorage to file:// pages — fall back to memory. */
@@ -624,10 +889,33 @@ var store = {
   del:function(k){ try{ localStorage.removeItem(k); }catch(e){ delete mem[k]; } }
 };
 
+/* ── active semester ──────────────────────────────────────────────── */
+var SEM_META = {
+  s1:{th:"ภาคต้น 2569 · ส.ค.-ธ.ค. 2569", en:"Semester 1, 2026 · Aug-Dec 2026"},
+  s2:{th:"ภาคปลาย 2569 · ม.ค.-พ.ค. 2570", en:"Semester 2, 2026 · Jan-May 2027"}
+};
+var TERM_START, WEEKS, HOLIDAYS, NOTES, SESSIONS, LEGEND, ADVISORY;
+function setSemester(key){
+  if(key==="s2"){
+    TERM_START=S2_TERM_START; WEEKS=S2_WEEKS; HOLIDAYS=S2_HOLIDAYS;
+    NOTES=S2_NOTES; SESSIONS=S2_SESSIONS; LEGEND=S2_LEGEND; ADVISORY=S2_ADVISORY;
+  }else{
+    TERM_START=S1_TERM_START; WEEKS=S1_WEEKS; HOLIDAYS=S1_HOLIDAYS;
+    NOTES=S1_NOTES; SESSIONS=S1_SESSIONS; LEGEND=S1_LEGEND; ADVISORY=null;
+  }
+}
+function detectSemester(){
+  var ts=todayStr();
+  if(ts>=S1_TERM_START && ts<fd(addDays(pd(S1_TERM_START), S1_WEEKS*7))) return "s1";
+  if(ts>=S2_TERM_START && ts<fd(addDays(pd(S2_TERM_START), S2_WEEKS*7))) return "s2";
+  return ts<S1_TERM_START ? "s1" : (ts<S2_TERM_START ? "s1" : "s2");
+}
+
 var state = {
   track: store.get("ph.track") || "",
   lang:  store.get("ph.lang")  || "th",
   theme: store.get("ph.theme") || "auto",
+  sem:   store.get("ph.sem")   || "",
   week:  0
 };
 function t(){ return T[state.lang]; }
@@ -683,13 +971,14 @@ function evName(s){
   if(s.n) return state.lang==="en" ? (EN_LABEL[s.n]||s.n) : s.n;
   var c=COURSES[s.c];
   if(c.useSess && s.q) return (state.lang==="th"?"ครั้งที่ ":"No. ")+s.q;
+  if(c.useLabel && s.q) return s.q;
   return c[state.lang];
 }
 function evMeta(s){
   var bits=[];
   if(s.r) bits.push((state.lang==="th"?"ห้อง ":"Rm ")+s.r);
   var c=COURSES[s.c];
-  if(!c.useSess && s.q) bits.push(s.q);
+  if(!c.useSess && !c.useLabel && s.q) bits.push(s.q);
   return bits.join(" · ");
 }
 function hh(n){ return (n<10?"0":"")+n+":00"; }
@@ -709,6 +998,17 @@ var TRACKS = {
   care: {c:"--c-idq1lab", th:"บริบาลเภสัชกรรม",    en:"Pharm Care"}
 };
 function trackLabel(k){ return state.lang==="th" ? TRACKS[k].th : TRACKS[k].en; }
+function eyebrowText(){ return t().eyebrow+" · "+SEM_META[state.sem][state.lang]; }
+
+var SEM_SHORT = {s1:"S1", s2:"S2"};
+function renderSemSeg(){
+  return '<div class="seg" role="group" aria-label="'+esc(t().semester)+'">'
+    + ["s1","s2"].map(function(k){
+        return '<button data-sem-set="'+k+'" aria-pressed="'+(state.sem===k)+'" '
+          +'title="'+esc(SEM_META[k][state.lang])+'">'+SEM_SHORT[k]+'</button>';
+      }).join("")
+    +'</div>';
+}
 
 var THEME_ICON = {auto:"◐", light:"☀", dark:"☾"};
 function renderThemeSeg(){
@@ -734,9 +1034,10 @@ function renderGate(){
   }
   return '<div class="gate">'
     +'<div>'
-    +'<p class="gate-eyebrow">'+esc(t().eyebrow)+'</p>'
+    +'<p class="gate-eyebrow">'+esc(eyebrowText())+'</p>'
     +'<h1>'+esc(t().title)+'</h1>'
     +'<p class="lede">'+esc(t().lede)+'</p>'
+    +'<div style="margin-top:10px">'+renderSemSeg()+'</div>'
     +'</div>'
     +'<div>'
     +'<p class="gate-eyebrow">'+esc(t().pick)+'</p>'
@@ -766,9 +1067,10 @@ function renderBar(){
   }
   return '<div class="bar">'
     +'<div class="bar-top">'
-    +'<div class="brand"><b>'+esc(t().title)+'</b><span>'+esc(t().eyebrow)+'</span></div>'
+    +'<div class="brand"><b>'+esc(t().title)+'</b><span>'+esc(eyebrowText())+'</span></div>'
     +'<button class="chip" id="btn-track" style="--tc:var('+TRACKS[state.track].c+')" '
     +'title="'+esc(t().changeTrack)+'"><span class="dot"></span>'+esc(trackLabel(state.track))+'</button>'
+    + renderSemSeg()
     + renderThemeSeg()
     +'<div class="seg" role="group">'
     +'<button data-lang="th" aria-pressed="'+(state.lang==="th")+'">ไทย</button>'
@@ -936,15 +1238,21 @@ function renderLegend(){
     +'</div></details>';
 }
 
+/* ── semester-wide advisory (only set for lower-confidence semesters) ── */
+function renderAdvisory(){
+  if(!ADVISORY) return "";
+  return '<div class="advisory"><b>'+esc(t().checkLab)+'</b><span>'+esc(ADVISORY[state.lang])+'</span></div>';
+}
+
 /* ── compose + events ─────────────────────────────────────────────── */
 function render(){
   var app=document.getElementById("app");
   document.documentElement.lang = state.lang==="th" ? "th" : "en";
   if(!state.track){ app.innerHTML=renderGate(); return; }
-  app.innerHTML = renderBar()+renderNext()+renderNotes()
+  app.innerHTML = renderBar()+renderAdvisory()+renderNext()+renderNotes()
                 + renderGrid()+renderAgenda()
                 + renderExams()+renderLegend()
-                + '<p class="foot"><span>'+esc(t().eyebrow)+'</span><span>'+esc(t().footNote)+'</span></p>';
+                + '<p class="foot"><span>'+esc(eyebrowText())+'</span><span>'+esc(t().footNote)+'</span></p>';
   /* keep the active week visible in the horizontally scrolling term ruler */
   var cur=document.querySelector('.ruler button[aria-current="true"]');
   if(cur && cur.parentNode.scrollWidth > cur.parentNode.clientWidth){
@@ -963,6 +1271,16 @@ document.addEventListener("click",function(ev){
   if((el=ev.target.closest("[data-theme-set]"))){
     state.theme=el.getAttribute("data-theme-set");
     store.set("ph.theme",state.theme); applyTheme(); render(); return;
+  }
+  if((el=ev.target.closest("[data-sem-set]"))){
+    var newSem=el.getAttribute("data-sem-set");
+    if(newSem!==state.sem){
+      state.sem=newSem; store.set("ph.sem",state.sem);
+      setSemester(state.sem);
+      var c=weekOfDate(todayStr()); state.week = c<0?0:Math.min(c,WEEKS-1);
+      render();
+    }
+    return;
   }
   if((el=ev.target.closest("[data-lang]"))){
     state.lang=el.getAttribute("data-lang");
@@ -1007,6 +1325,8 @@ document.addEventListener("keydown",function(ev){
 
 /* boot */
 (function(){
+  if(!state.sem) state.sem = detectSemester();
+  setSemester(state.sem);
   applyTheme();
   var c=weekOfDate(todayStr());
   state.week = c<0 ? 0 : Math.min(c,WEEKS-1);
@@ -1015,18 +1335,24 @@ document.addEventListener("keydown",function(ev){
 
 /* data integrity check — visible in the console, never in the UI */
 (function(){
-  function top(key){
-    return SESSIONS.filter(function(s){ return s.c===key && s.q; })
+  function top(arr,key){
+    return arr.filter(function(s){ return s.c===key && s.q; })
       .reduce(function(m,s){
         var parts=String(s.q).split("-");
         return Math.max(m, parseFloat(parts[parts.length-1])||0);
       },0);
   }
-  var checks=[["IDT4",75],["IDQ1_LEC",30],["IDQ1_LAB",22.5],["IDQLAB1",45],["IDG3",10]];
-  var report=checks.map(function(c){
-    var got=top(c[0]);
-    return (got===c[1]?"ok  ":"BAD ")+c[0]+": "+got+"/"+c[1];
-  });
+  var s1checks=[["IDT4",75],["IDQ1_LEC",30],["IDQ1_LAB",22.5],["IDQLAB1",45],["IDG3",10]];
+  var s2checks=[["IDT5",75],["IDT3",90],["IDQ2_LEC",30],["IDG4",10]];
+  var report=[]
+    .concat(s1checks.map(function(c){
+      var got=top(S1_SESSIONS,c[0]);
+      return (got===c[1]?"ok  ":"BAD ")+"[S1] "+c[0]+": "+got+"/"+c[1];
+    }))
+    .concat(s2checks.map(function(c){
+      var got=top(S2_SESSIONS,c[0]);
+      return (got===c[1]?"ok  ":"BAD ")+"[S2] "+c[0]+": "+got+"/"+c[1];
+    }));
   console.log("[schedule] session totals\n"+report.join("\n"));
   window.__scheduleCheck = function(){ return report; };
 })();
