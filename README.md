@@ -4,10 +4,13 @@ A single-file, no-install weekly timetable for Year‑3 Semester‑1 (3 Aug – 
 
 ## Use it
 
-Double-click [`index.html`](index.html) — it works fully offline, no server or install needed. Or open the published link if one was shared with you.
+**Live site:** https://supakiat999.github.io/pharm-schedule/ — free, public, works on any device, nothing to install.
+
+Or double-click [`index.html`](index.html) locally — it works fully offline too.
 
 - **‹ ›** or **arrow keys** or **swipe** — move between weeks
 - **Today** — jump to the current week
+- **☀ / ☾ / ◐** — light, dark, or auto (follows your device) theme
 - **Week number strip** — jump anywhere in the term; a red dot marks weeks with an exam
 - **ไทย / EN** — switch UI language (course names stay as written in the source)
 - Your track and language choice are remembered on this device
