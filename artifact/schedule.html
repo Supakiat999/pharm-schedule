@@ -919,6 +919,23 @@ var state = {
   week:  0
 };
 function t(){ return T[state.lang]; }
+
+/* Track changes are state changes, not navigation. Re-render the active
+   semester from the selected track so every schedule surface (next class,
+   grid, mobile agenda, exams, and week markers) uses the same filter. */
+function chooseTrack(next, resetWeek){
+  if(next!=="sci" && next!=="care") return;
+  state.track=next;
+  store.set("ph.track",state.track);
+  if(resetWeek){
+    var c=weekOfDate(todayStr());
+    state.week=c<0?0:Math.min(c,WEEKS-1);
+  }
+  setSemester(state.sem || detectSemester());
+  render();
+}
+
+function otherTrack(k){ return k==="sci" ? "care" : "sci"; }
 function applyTheme(){
   if(state.theme==="auto") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", state.theme);
@@ -1058,6 +1075,7 @@ function renderGate(){
 /* ── top bar ──────────────────────────────────────────────────────── */
 function renderBar(){
   var wi=state.week, cur=weekOfDate(todayStr());
+  var nextTrack=otherTrack(state.track);
   var ruler="";
   for(var i=0;i<WEEKS;i++){
     var flag = weekHasExam(i) ? '<span class="flag"></span>' : "";
@@ -1068,8 +1086,10 @@ function renderBar(){
   return '<div class="bar">'
     +'<div class="bar-top">'
     +'<div class="brand"><b>'+esc(t().title)+'</b><span>'+esc(eyebrowText())+'</span></div>'
-    +'<button class="chip" id="btn-track" style="--tc:var('+TRACKS[state.track].c+')" '
-    +'title="'+esc(t().changeTrack)+'"><span class="dot"></span>'+esc(trackLabel(state.track))+'</button>'
+    +'<button class="chip" id="btn-track" data-track-next="'+nextTrack+'" '
+    +'style="--tc:var('+TRACKS[state.track].c+')" '
+    +'title="'+esc(t().changeTrack)+'" aria-label="'+esc(t().changeTrack+": "+trackLabel(nextTrack))+'">'
+    +'<span class="dot"></span>'+esc(trackLabel(state.track))+'</button>'
     + renderSemSeg()
     + renderThemeSeg()
     +'<div class="seg" role="group">'
@@ -1263,10 +1283,8 @@ function render(){
 document.addEventListener("click",function(ev){
   var el;
   if((el=ev.target.closest("[data-track]"))){
-    state.track=el.getAttribute("data-track");
-    store.set("ph.track",state.track);
-    var c=weekOfDate(todayStr()); state.week = c<0?0:Math.min(c,WEEKS-1);
-    render(); window.scrollTo(0,0); return;
+    chooseTrack(el.getAttribute("data-track"),true);
+    window.scrollTo(0,0); return;
   }
   if((el=ev.target.closest("[data-theme-set]"))){
     state.theme=el.getAttribute("data-theme-set");
@@ -1295,10 +1313,8 @@ document.addEventListener("click",function(ev){
     return;
   }
   if(ev.target.closest("#btn-track")){
-    /* Switch tracks in place so the current week, semester, and scroll position stay visible. */
-    state.track = state.track === "sci" ? "care" : "sci";
-    store.set("ph.track",state.track);
-    render();
+    /* Switch the active schedule in place; do not return to the track gate. */
+    chooseTrack(ev.target.closest("#btn-track").getAttribute("data-track-next"),false);
   }
 });
 
