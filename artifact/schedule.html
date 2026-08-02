@@ -335,7 +335,7 @@ var T = {
     gateFoot:"ข้อมูลถอดจากตารางต้นฉบับของคณะ — เปลี่ยนสายได้ทุกเมื่อจากแถบด้านบน",
     week:"สัปดาห์ที่", today:"วันนี้", prev:"สัปดาห์ก่อนหน้า", next:"สัปดาห์ถัดไป",
     noClass:"ไม่มีเรียน", exams:"ตารางสอบ", legend:"รายวิชาและรหัสสี",
-    nextUp:"คาบต่อไป", changeTrack:"เปลี่ยนสาย", room:"ห้อง",
+    nextUp:"คาบต่อไป", changeTrack:"สลับสาย", room:"ห้อง",
     daysLeft:"อีก %d วัน", tomorrow:"พรุ่งนี้", isToday:"วันนี้", passed:"ผ่านไปแล้ว",
     beforeTerm:"ภาคเรียนเริ่ม 3 ส.ค. 2569", afterTerm:"จบภาคเรียนแล้ว",
     credits:"หน่วยกิต", checkLab:"ตรวจสอบ",
@@ -357,7 +357,7 @@ var T = {
     gateFoot:"Transcribed from the faculty timetable — you can switch tracks any time from the top bar.",
     week:"Week", today:"Today", prev:"Previous week", next:"Next week",
     noClass:"No class", exams:"Exams", legend:"Courses & colour key",
-    nextUp:"Next up", changeTrack:"Change track", room:"Room",
+    nextUp:"Next up", changeTrack:"Switch track", room:"Room",
     daysLeft:"in %d days", tomorrow:"tomorrow", isToday:"today", passed:"passed",
     beforeTerm:"Term starts 3 Aug 2026", afterTerm:"Term has ended",
     credits:"credits", checkLab:"verify",
@@ -1295,7 +1295,10 @@ document.addEventListener("click",function(ev){
     return;
   }
   if(ev.target.closest("#btn-track")){
-    state.track=""; store.del("ph.track"); render(); window.scrollTo(0,0);
+    /* Switch tracks in place so the current week, semester, and scroll position stay visible. */
+    state.track = state.track === "sci" ? "care" : "sci";
+    store.set("ph.track",state.track);
+    render();
   }
 });
 
